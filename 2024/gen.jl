@@ -26,10 +26,8 @@ if !isdir(path)
 
     resp = HTTP.get("https://adventofcode.com/$YEAR/day/$day/input", cookies=cookies)
 
-    data = resp
-
     open(joinpath(path, "input.in"), "w") do file
-        write(file, data.body)
+        write(file, resp.body)
     end
 
 end
