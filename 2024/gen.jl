@@ -22,6 +22,20 @@ if !isdir(path)
     touch(joinpath(path, "test.in"))
     touch(joinpath(path, "main.jl"))
 
+    open(joinpath(path, "main.jl"), "w") do file
+        write(file,
+            """
+
+            input = readlines("$day/input.in", keep=true)
+
+            for line in input
+                print(line)
+            end
+
+            """
+        )
+    end
+
     cookies = Dict("session" => ENV["SESSION"])
 
     resp = HTTP.get("https://adventofcode.com/$YEAR/day/$day/input", cookies=cookies)
