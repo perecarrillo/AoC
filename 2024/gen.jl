@@ -18,31 +18,52 @@ path = joinpath(pwd(), string(day))
 
 if !isdir(path)
     mkpath(path)
-    touch(joinpath(path, "input.in"))
+end
+
+if !isfile(joinpath(path, "test.in"))
     touch(joinpath(path, "test.in"))
+end
+if !isfile(joinpath(path, "main.jl"))
     touch(joinpath(path, "main.jl"))
 
     open(joinpath(path, "main.jl"), "w") do file
         write(file,
             """
 
-            input = readlines("$day/input.in", keep=false)
+            function main()
 
-            for line in input
-                print(line)
+                input = readlines("$day/input.in", keep=false)
+
+                for line in input
+                    println(line)
+                end
+
             end
+
+            main()
 
             """
         )
     end
+end
 
+if !isfile(joinpath(path, "input.in")) || length(readlines("$day/input.in")) == 0
+    touch(joinpath(path, "input.in"))
+
+    if !haskey(ENV, "SESSION") || ENV["SESSION"] == ""
+        error("Session cookie not found. Make sure it is set in the .env file.")
+    end
     cookies = Dict("session" => ENV["SESSION"])
 
-    resp = HTTP.get("https://adventofcode.com/$YEAR/day/$day/input", cookies=cookies)
+    resp = HTTP.get("https://adventofcode.com/$YEAR/day/$day/input", cookies=cookies, status_exception = false)
 
-    open(joinpath(path, "input.in"), "w") do file
-        write(file, resp.body)
+    if HTTP.iserror(resp)
+        error("Unable to get input for day $day.")
+    else
+        open(joinpath(path, "input.in"), "w") do file
+            write(file, resp.body)
+        end
     end
-
+    
 end
 
