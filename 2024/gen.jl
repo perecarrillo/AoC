@@ -26,7 +26,7 @@ if !isdir(path)
         write(file,
             """
 
-            input = readlines("$day/input.in", keep=true)
+            input = readlines("$day/input.in", keep=false)
 
             for line in input
                 print(line)
