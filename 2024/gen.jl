@@ -29,14 +29,37 @@ if !isfile(joinpath(path, "main.jl"))
     open(joinpath(path, "main.jl"), "w") do file
         write(file,
             """
+            function get_input()
+                return readlines("$day/input.in", keep=false)
+            end
 
-            function main()
-
-                input = readlines("$day/input.in", keep=false)
-
+            function part1()
+                input = get_input()
+                
                 for line in input
                     println(line)
                 end
+
+                return 0
+            end
+
+            function part2()
+                input = get_input()
+                
+                for line in input
+                    println(line)
+                end
+
+                return 0
+            end
+
+            function main()
+
+                p1 = part1()
+                p2 = part2()
+                
+                println("Part 1: \$p1")
+                println("Part 2: \$p2")
 
             end
 
@@ -55,7 +78,7 @@ if !isfile(joinpath(path, "input.in")) || length(readlines("$day/input.in")) == 
     end
     cookies = Dict("session" => ENV["SESSION"])
 
-    resp = HTTP.get("https://adventofcode.com/$YEAR/day/$day/input", cookies=cookies, status_exception = false)
+    resp = HTTP.get("https://adventofcode.com/$YEAR/day/$day/input", cookies=cookies, status_exception=false)
 
     if HTTP.iserror(resp)
         error("Unable to get input for day $day.")
@@ -64,6 +87,6 @@ if !isfile(joinpath(path, "input.in")) || length(readlines("$day/input.in")) == 
             write(file, resp.body)
         end
     end
-    
+
 end
 
