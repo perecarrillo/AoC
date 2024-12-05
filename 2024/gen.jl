@@ -29,6 +29,8 @@ if !isfile(joinpath(path, "main.jl"))
     open(joinpath(path, "main.jl"), "w") do file
         write(file,
             """
+            include("../utils.jl")
+
             function get_input()
                 return readlines("$day/input.in", keep=false)
             end
