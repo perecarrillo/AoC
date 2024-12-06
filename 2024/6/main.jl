@@ -65,6 +65,34 @@ function next_dir(dir)
 end
 
 function part1()
+    input = map.(x -> [x, Set()], collect.(get_input()))
+
+    dir::Direction = up
+    inii, inij = find_xy_3d(input)
+    i, j = inii, inij
+
+    visited = Set()
+
+    while true
+        try
+            push!(visited, (i, j))
+            
+            newi, newj = add_dir(i, j, dir)
+            while input[newi][newj][1] == '#'
+                dir = next_dir(dir)
+                newi, newj = add_dir(i, j, dir)
+            end
+            i, j = newi, newj
+        catch
+            break
+        end
+    end
+
+    # println(obstacles)
+    return length(visited)
+end
+
+function oldpart1()
     input = collect.(get_input())
     i, j = find_xy(input)
 
@@ -93,31 +121,26 @@ function part1()
     return sum(count.(==('X'), input)) + 1
 end
 
-function is_loop(input::Vector, dir::Direction)::Bool
-    input = deepcopy(input)
-    i, j = find_xy_3d(input)
+function is_loop(input::Vector, i::Int, j::Int, dir::Direction)::Bool
+    visited = Set()
     while true
         try
+            # println("[LOOP] ", i, " ", j, " ($dir)")
+
+            if (i, j, dir) in visited
+                return true
+            end
+            
+            
+            push!(visited, (i, j, dir))
+            
             newi, newj = add_dir(i, j, dir)
-
-            olddir = dir
-            if input[newi][newj][1] == '#'
+            while input[newi][newj] == '#'
                 dir = next_dir(dir)
-            end
-
-            # println("[LOOP] New loc: $newi, $newj, $dir. ($(input[newi][newj][2]))")
-
-            if input[newi][newj][1] != '#'
-                if in(dir, input[newi][newj][2])
-                    return true
-                end
-
                 newi, newj = add_dir(i, j, dir)
-                input[i][j][1] = 'X'
-                push!(input[i][j][2], olddir)
-                input[newi][newj][1] = '^'
-                i, j = newi, newj
             end
+ 
+            i, j = newi, newj
         catch
             return false
         end
@@ -125,6 +148,50 @@ function is_loop(input::Vector, dir::Direction)::Bool
 end
 
 function part2()
+    input = collect.(get_input())
+
+    dir::Direction = up
+    inii, inij = find_xy(input)
+    i, j = inii, inij
+
+    obstacles = Set()
+    c = 0
+
+    visited = Set()
+
+    while true
+        try
+            # println(c, ": ", i, " ", j, " ($dir)")
+            push!(visited, (i, j))
+            
+            newi, newj = add_dir(i, j, dir)
+            while input[newi][newj] == '#'
+                dir = next_dir(dir)
+                newi, newj = add_dir(i, j, dir)
+            end
+
+            # println("Next position: $newi, $newj")
+
+            old = input[newi][newj]
+            input[newi][newj] = '#'
+            if (newi != inii || newj != inij) && ((newi, newj) in obstacles || is_loop(input, inii, inij, up))
+                # println("Found obstacle in $newi, $newj")
+                push!(obstacles, (newi, newj))
+            end
+            input[newi][newj] = old
+
+            i, j = newi, newj
+            c += 1
+        catch
+            break
+        end
+    end
+
+    # println(obstacles)
+    return length(obstacles)
+end
+
+function oldpart2()
     input = map.(x -> [x, Set()], collect.(get_input()))
 
     dir::Direction = up
@@ -175,11 +242,10 @@ end
 
 function main()
 
-    p1 = part1()
+    p1 = @time part1()
     println("Part 1: $p1")
-
-    p2 = part2()
-    println("Part 1: $p1")
+    
+    p2 = @time part2()
     println("Part 2: $p2")
 
 end
