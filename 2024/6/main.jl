@@ -65,10 +65,10 @@ function next_dir(dir)
 end
 
 function part1()
-    input = map.(x -> [x, Set()], collect.(get_input()))
+    input = collect.(get_input())
 
     dir::Direction = up
-    inii, inij = find_xy_3d(input)
+    inii, inij = find_xy(input)
     i, j = inii, inij
 
     visited = Set()
@@ -88,37 +88,7 @@ function part1()
         end
     end
 
-    # println(obstacles)
     return length(visited)
-end
-
-function oldpart1()
-    input = collect.(get_input())
-    i, j = find_xy(input)
-
-    dir::Direction = up
-    while true
-        newi, newj = add_dir(i, j, dir)
-        try
-            if input[newi][newj] == '#'
-                dir = next_dir(dir)
-            end
-            newi, newj = add_dir(i, j, dir)
-
-            if input[newi][newj][1] != '#'
-
-                newi, newj = add_dir(i, j, dir)
-                input[newi][newj] = '^'
-                input[i][j] = 'X'
-                i, j = newi, newj
-            end
-
-        catch
-            break
-        end
-    end
-
-    return sum(count.(==('X'), input)) + 1
 end
 
 function is_loop(input::Vector, i::Int, j::Int, dir::Direction)::Bool
@@ -187,56 +157,6 @@ function part2()
         end
     end
 
-    # println(obstacles)
-    return length(obstacles)
-end
-
-function oldpart2()
-    input = map.(x -> [x, Set()], collect.(get_input()))
-
-    dir::Direction = up
-    inii, inij = find_xy_3d(input)
-    i, j = inii, inij
-
-    obstacles = Set()
-    c = 0
-    while true
-        try
-            newi, newj = add_dir(i, j, dir)
-
-            println(c, ": ", newi, " ", newj)
-
-            olddir = dir
-            push!(input[i][j][2], olddir)
-
-            if input[newi][newj][1] == '#'
-                dir = next_dir(dir)
-            end
-            newi, newj = add_dir(i, j, dir)
-
-            if input[newi][newj][1] != '#'
-                input[newi][newj][1] = '#'
-
-                # println("New dir: $newi, $newj, $dir")
-
-                if (newi != inii || newj != inij) && ((newi, newj) in obstacles || is_loop(input, olddir))
-                    # println("Found correct obstacle at $newi, $newj")
-                    push!(obstacles, (newi, newj))
-                end
-
-                input[i][j][1] = c
-                input[newi][newj][1] = '^'
-                i, j = newi, newj
-                c += 1
-            end
-
-        catch
-            break
-        end
-    end
-
-    # println.(input)
-    println(obstacles)
     return length(obstacles)
 end
 
