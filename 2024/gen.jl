@@ -57,8 +57,8 @@ if !isfile(joinpath(path, "main.jl"))
 
             function main()
 
-                p1 = part1()
-                p2 = part2()
+                p1 = @time part1()
+                p2 = @time part2()
                 
                 println("Part 1: \$p1")
                 println("Part 2: \$p2")
