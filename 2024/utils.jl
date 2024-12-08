@@ -29,3 +29,30 @@ function splitby(condition::Function, array::Vector; keep=false)::Vector{Vector}
     end
     return ret
 end
+
+"""
+    isin(map::Vector, indices...) -> Bool
+
+Returns true if the indices are inside the map.
+
+# Examples
+```jldoctest
+julia> isin(zeros(2, 2, 2, 2), 1, 1, 1, 1)
+true
+
+julia> isin(zeros(2, 2, 2, 2), [1, 1, 1, 1])
+true
+
+julia> isin(zeros(2, 2), 1)
+true
+
+julia> isin(zeros(2, 2), 0, 1)
+false
+
+julia> isin(zeros(2, 2), 3, 1)
+false
+```
+"""
+isin(map, indices...) = indices[1] > 0 && indices[1] <= length(map) && isin(map[indices[1]], indices[2:end]...)
+isin(map, idx::Int) = idx > 0 && idx <= length(map)
+isin(map, idx::Union{Vector{Int}, Tuple}) = isin(map, idx...)

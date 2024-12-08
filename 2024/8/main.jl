@@ -6,11 +6,9 @@ function get_input()
     return readlines("8/input.in", keep=false)
 end
 
-function part1()
-    input = collect.(get_input())
-    
+function getantennas(map)
     antennas = Dict()
-    for (i, line) in enumerate(input)
+    for (i, line) in enumerate(map)
         for (j, x) in enumerate(line)
             if x != '.'
                 if haskey(antennas, x)
@@ -21,103 +19,69 @@ function part1()
             end
         end
     end
+    return antennas
+end
 
-    rows = length(input)
-    cols = length(input[1])
+function part1()
+    input = collect.(get_input())
+    
+    antennas = getantennas(input)
 
-    antinodes = 0
-
-    antinodespositions = Set()
+    antinodes = Set()
 
     for (freq, ants) in antennas
         combs = combinations(ants, 2)
 
-        for ((i1, j1), (i2, j2)) in combs
-            if i1 != i2 || j1 != j2
-                disti = i2 - i1
-                distj = j2 - j1
+        for (a1, a2) in combs
+            dist = a2 .- a1
 
-                pos1 = (i2 + disti, j2 + distj)
-                pos2 = (i1 - disti, j1 - distj)
+            pos1 = a2 .+ dist
+            pos2 = a1 .- dist
 
-                if pos1[1] > 0 && pos1[1] <= rows && pos1[2] > 0 && pos1[2] <= cols && !(pos1 in antinodespositions)
-                    push!(antinodespositions, pos1)
-                    # println("Found antinode in $(pos1[1]), $(pos1[2])")
-                    antinodes +=1
-                end
-                if pos2[1] > 0 && pos2[1] <= rows && pos2[2] > 0 && pos2[2] <= cols && !(pos2 in antinodespositions)
-                    push!(antinodespositions, pos2)
-                    # println("Found antinode in $(pos2[1]), $(pos2[2])")
-                    antinodes +=1
-                end
+            if isin(input, pos1)
+                push!(antinodes, pos1)
+            end
+            if isin(input, pos2)
+                push!(antinodes, pos2)
             end
         end
     end
 
 
-    return antinodes
+    return length(antinodes)
 end
 
 function part2()
     input = collect.(get_input())
     
-    antennas = Dict()
-    for (i, line) in enumerate(input)
-        for (j, x) in enumerate(line)
-            if x != '.'
-                if haskey(antennas, x)
-                    push!(antennas[x], (i, j))
-                else
-                    antennas[x] = [(i, j)]
-                end
-            end
-        end
-    end
+    antennas = getantennas(input)
 
-    rows = length(input)
-    cols = length(input[1])
-
-    antinodes = 0
-
-    antinodespositions = Set()
+    antinodes = Set()
 
     for (freq, ants) in antennas
         combs = combinations(ants, 2)
 
-        for ((i1, j1), (i2, j2)) in combs
-            if i1 != i2 || j1 != j2
-                disti = i2 - i1
-                distj = j2 - j1
+        for (a1, a2) in combs
+            dist::Tuple{Int, Int} = a2 .- a1
 
-                g = gcd(disti, distj)
+            # This is not needed in this specific case, the input is very "nice".
+            dist = dist ./ gcd(dist...)
 
-                disti /= g
-                distj /= g
+            pos = a1
+            oldpos = pos
+            
+            while isin(input, pos)
+                push!(antinodes, pos)
+                pos = pos .+ dist
+            end
 
-                pos1 = (i1, j1)
-                oldpos1 = pos1
-                
-                while pos1[1] > 0 && pos1[1] <= rows && pos1[2] > 0 && pos1[2] <= cols
-                    if !(pos1 in antinodespositions)
-                        push!(antinodespositions, pos1)
-                        # println("Found antinode in $(pos1[1]), $(pos1[2])")
-                        antinodes +=1
-                    end
-                    pos1 = (pos1[1] + disti, pos1[2] + distj)
-                end
-                pos1 = oldpos1
-                while pos1[1] > 0 && pos1[1] <= rows && pos1[2] > 0 && pos1[2] <= cols
-                    if !(pos1 in antinodespositions)
-                        push!(antinodespositions, pos1)
-                        # println("Found antinode in $(pos1[1]), $(pos1[2])")
-                        antinodes +=1
-                    end
-                    pos1 = (pos1[1] - disti, pos1[2] - distj)
-                end
+            while isin(input, oldpos)
+                push!(antinodes, oldpos)
+                oldpos = oldpos .- dist
             end
         end
     end
-    return antinodes
+    return length(antinodes)
 end
 
 function main()

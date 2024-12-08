@@ -31,12 +31,12 @@ if !isfile(joinpath(path, "main.jl"))
             """
             include("../utils.jl")
 
-            function get_input()
+            function getinput()
                 return readlines("$day/input.in", keep=false)
             end
 
             function part1()
-                input = get_input()
+                input = getinput()
                 
                 for line in input
                     println(line)
@@ -46,7 +46,7 @@ if !isfile(joinpath(path, "main.jl"))
             end
 
             function part2()
-                input = get_input()
+                input = getinput()
                 
                 for line in input
                     println(line)
