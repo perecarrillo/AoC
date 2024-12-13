@@ -1,9 +1,9 @@
 include("../utils.jl")
 
 using JuMP
-import HiGHS, Cbc
+import HiGHS
 using Formatting
-
+using PyCall
 
 function getinput()
     return readlines("13/input.in", keep=false)
@@ -53,10 +53,28 @@ function part1()
     return total
 end
 
+py"""
+from scipy.optimize import milp, LinearConstraint
+import numpy as np
+
+def solveProblem(X, Y, Ax, Ay, Bx, By):
+    c = [3, 1]
+    A = [[Ax, Bx], [Ay, By]]
+    b = [X, Y]
+
+    constraints = LinearConstraint(A, b, b)
+
+    res = milp(integrality=[1, 1], constraints=constraints, c=c)
+
+    return res.success, res.x
+"""
+
 function part2()
     input = getinput()
 
     problems = splitby(==(""), input)
+
+    foreach(x -> println.(x);println(), problems)
 
     total::BigInt = 0
 
@@ -74,39 +92,15 @@ function part2()
         # println("Button B: X+$Bx, Y+$By")
         # println("Prize: X=$(X), Y=$(Y)")
 
+        success, x = py"solveProblem"(X, Y, Ax, Ay, Bx, By)
 
+        if success
+            pA::BigInt, pB::BigInt = x
 
-        model = Model(Cbc.Optimizer)
-        set_attribute(model, "logLevel", 0)
-        # set_silent(model)
-        @variable(model, pA >= 0, Int)
-        @variable(model, pB >= 0, Int)
+            println("Found solution: $pA, $pB")
 
-        @constraint(model, X == (pA * Ax) + (pB * Bx))
-        @constraint(model, Y == (pA * Ay) + (pB * By))
-
-        @objective(model, Min, (3 * pA) + pB)
-
-        optimize!(model)
-
-        println(termination_status(model))
-
-        if termination_status(model) == OPTIMAL
-            println("pA: $(format(value(pA))), pB: $(format(value(pB)))")
-            newpA = round(Int, value(pA))
-            newpB = round(Int, value(pB))
-            println("Real pA: $(format(value(newpA))), pB: $(format(value(newpB)))")
-            total += newpA * 3 + newpB
-            # println("rhs: $(value(pA) * Ax + value(pB) * Bx), lhs: $(X)")
-            @assert(newpA * Ax + newpB * Bx == X)
-            @assert(newpA * Ay + newpB * By == Y)
-        else
-            # @assert(newpA * Ax + newpB * Bx != X || newpA * Ay + newpB * By != Y, "Solution did exist: $newpA, $newpB")
+            total += 3*pA + pB
         end
-
-        println()
-        # println()
-
     end
 
     return total
