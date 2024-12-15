@@ -3,6 +3,8 @@
 
 Splits the passed array into subarrays starting from each element that meets the condition.
 
+**Note**: It is a bit slow
+
 # Examples
 ```jldoctest
 julia> splitby(x->x>3, [1, 3, 4, 3, 5, 1], keep=true)
@@ -16,8 +18,6 @@ julia> splitby(==(""), ["first", "second", "", "forth", "fifth"])
  ["first", "second"]
  ["forth", "fifth"]
 ```
-
-**Note**: It is a bit slow
 """
 function splitby(condition::Function, array::Vector; keep=false)::Vector{Vector}
     indices = [[1]; findall(condition, array)]
@@ -56,3 +56,40 @@ false
 isin(map, indices...) = indices[1] > 0 && indices[1] <= length(map) && isin(map[indices[1]], indices[2:end]...)
 isin(map, idx::Int) = idx > 0 && idx <= length(map)
 isin(map, idx::Union{Vector{Int}, Tuple}) = isin(map, idx...)
+
+
+"""
+    findindices2d(map::Vector{Vector}, item)
+
+Returns the indices of the positions equal to item.
+
+# Examples
+
+```jldoctest
+julia> findidx2d([[1,1,0,1], [1,1,1,1]], 0)
+1-element Vector{Any}:
+ (1, 3)
+
+julia> findidx2d([[1,1,0,1], [1,1,1,0]], 0)
+2-element Vector{Any}:
+ (1, 3)
+ (2, 4)
+
+julia> findidx2d([[1,1,1,1], [1,1,1,1]], 0)
+Any[]
+```
+"""
+function findindices2d(map, item)
+    positions = []
+
+    for (x, line) in enumerate(map)
+        if item in line
+            i = x
+            j = findall(==(item), line)[1]
+
+            push!(positions, (i, j))
+        end
+    end
+
+    return positions
+end
