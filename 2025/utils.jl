@@ -53,10 +53,10 @@ julia> isin(zeros(2, 2), 3, 1)
 false
 ```
 """
-isin(map::Vector, indices...) = indices[1] > 0 && indices[1] <= length(map) && isin(map[indices[1]], indices[2:end]...)
-isin(map::Vector, idx::Int) = idx > 0 && idx <= length(map)
+isin(map::Union{Vector,String}, indices...) = indices[1] > 0 && indices[1] <= length(map) && isin(map[indices[1]], indices[2:end]...)
+isin(map::Union{Vector,String}, idx::Int) = idx > 0 && idx <= length(map)
 isin(map::Array, indices...) = all([indices[i] > 0 && indices[i] <= maxsize for (i, maxsize) in enumerate(size(map))])
-isin(map::Union{Vector,Array}, idx::Union{Vector{Int},Tuple}) = isin(map, idx...)
+isin(map::Union{Vector,String,Array}, idx::Union{Vector{Int},Tuple}) = isin(map, idx...)
 
 """
     findindices2d(map::Vector{Vector}, item)
