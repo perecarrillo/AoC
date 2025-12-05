@@ -93,3 +93,29 @@ function findindices2d(map, item)
 
     return positions
 end
+
+"""
+    swapnpop!(a::AbstractArray, n::Int)
+
+Removes the element at the nth position and moves the last one there.
+
+Similar to `deleteat!` but faster (but changes ordering)
+
+# Examples
+
+```jldoctest
+julia> a = [1,2,3,4,5]; swapnpop!(a, 2); a
+4-element Vector{Int64}:
+ 1
+ 5
+ 3
+ 4
+
+```
+"""
+function swapnpop!(a::AbstractArray, n::Int)
+    # Found in https://discourse.julialang.org/t/linked-list/6633/9
+    n > length(a) && throw(BoundsError())
+    a[n] = a[end]
+    pop!(a)
+ end
